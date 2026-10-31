@@ -1,7 +1,7 @@
 // Real KEI content. Nothing here is invented: projects, quotes, people and
 // links are the same ones the site has always published.
 
-export const WHATSAPP_URL = "http://wa.me/+5493385442470"
+export const WHATSAPP_URL = "https://wa.me/5493513614462"
 
 export type Project = {
   title: string
