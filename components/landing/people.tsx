@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight, ArrowUpRight, Instagram, Mail, MessageCircle } f
 import { m, useReducedMotion, useScroll, useTransform } from "@/lib/motion"
 import { Fade, Lines, Pill, useReveal } from "@/components/landing/primitives"
 import { WHATSAPP_URL, bleedLogos, clients, steps, team, testimonials } from "@/components/landing/data"
+import { identifyLead, track, visit } from "@/lib/analytics"
 
 /* ---------------------------------------------------------------------------
    Process — a navy rounded panel (Osmo's dark slab). The four steps sit in
@@ -129,6 +130,7 @@ export function Voices() {
     const onUp = () => {
       if (!down) return
       down = false
+      if (moved) track("testimonials_browsed", { method: "drag" })
       let vel = -v * 16
       const tick = () => {
         vel *= 0.92
@@ -159,6 +161,7 @@ export function Voices() {
   const nudge = (dir: 1 | -1) => {
     const el = rail.current
     if (!el) return
+    track("testimonials_browsed", { method: "arrow", direction: dir === 1 ? "next" : "previous" })
     // Re-centre before moving so the smooth scroll is never cut short by a jump.
     wrapLoop(el)
     const card = el.querySelector("li")
@@ -347,6 +350,46 @@ export function Contact() {
   const [error, setError] = useState<string | null>(null)
   const [touched, setTouched] = useState(false)
   const formRef = useReveal<HTMLFormElement>()
+  const startedAt = useRef<number | null>(null)
+  const latest = useRef({ data, status })
+  latest.current = { data, status }
+
+  // Leaving the page with a half-written form is the "didn't do it" signal.
+  useEffect(() => {
+    const onLeave = () => {
+      const { data: d, status: st } = latest.current
+      if (startedAt.current === null || st === "sent") return
+      track(
+        "contact_form_abandoned",
+        {
+          last_status: st,
+          seconds_in_form: Math.round((performance.now() - startedAt.current) / 1000),
+          filled_name: !!d.name.trim(),
+          filled_phone: !!d.phone.trim(),
+          filled_message: !!d.message.trim(),
+          message_length: d.message.trim().length,
+        },
+        true
+      )
+      startedAt.current = null
+    }
+    window.addEventListener("pagehide", onLeave)
+    return () => {
+      window.removeEventListener("pagehide", onLeave)
+      onLeave()
+    }
+  }, [])
+
+  const onFieldFocus = (field: string) => {
+    if (startedAt.current !== null) return
+    startedAt.current = performance.now()
+    visit.formStarted = true
+    track("contact_form_started", { first_field: field })
+  }
+  const onFieldBlur = (field: keyof typeof data) => {
+    const value = data[field].trim()
+    track("contact_field_completed", { field, filled: !!value, length: value.length })
+  }
 
   const phoneOk = /^\+?[\d\s().-]+$/.test(data.phone.trim()) && data.phone.replace(/\D/g, "").length >= 8
   const invalid = {
@@ -360,10 +403,18 @@ export function Contact() {
     setTouched(true)
     if (!data.name.trim() || !phoneOk || !data.message.trim()) {
       setError("Completá tu nombre, un teléfono válido y qué necesitás.")
+      track("contact_form_validation_failed", {
+        missing_name: !data.name.trim(),
+        invalid_phone: !phoneOk,
+        missing_message: !data.message.trim(),
+      })
       return
     }
     setStatus("sending")
     setError(null)
+    visit.formSubmitted = true
+    const seconds_in_form = startedAt.current === null ? null : Math.round((performance.now() - startedAt.current) / 1000)
+    track("contact_form_submitted", { seconds_in_form, message_length: data.message.trim().length })
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
@@ -375,8 +426,16 @@ export function Contact() {
         throw new Error(body.error || "No pudimos enviar el mensaje.")
       }
       setStatus("sent")
+      identifyLead(data)
+      track("contact_form_succeeded", {
+        seconds_in_form,
+        name: data.name.trim(),
+        phone: data.phone.trim(),
+        message: data.message.trim(),
+      })
     } catch (err) {
       setStatus("error")
+      track("contact_form_failed", { error: err instanceof Error ? err.message : String(err) })
       setError(
         `${err instanceof Error ? err.message : "No pudimos enviar el mensaje."} Probá de nuevo o escribinos por WhatsApp.`
       )
@@ -445,6 +504,8 @@ export function Contact() {
                     value={data.name}
                     aria-invalid={invalid.name || undefined}
                     onChange={(e) => setData({ ...data, name: e.target.value })}
+                    onFocus={() => onFieldFocus("name")}
+                    onBlur={() => onFieldBlur("name")}
                   />
                 </div>
                 <div>
@@ -461,6 +522,8 @@ export function Contact() {
                     value={data.phone}
                     aria-invalid={invalid.phone || undefined}
                     onChange={(e) => setData({ ...data, phone: e.target.value })}
+                    onFocus={() => onFieldFocus("phone")}
+                    onBlur={() => onFieldBlur("phone")}
                   />
                 </div>
               </div>
@@ -477,6 +540,8 @@ export function Contact() {
                   value={data.message}
                   aria-invalid={invalid.message || undefined}
                   onChange={(e) => setData({ ...data, message: e.target.value })}
+                    onFocus={() => onFieldFocus("message")}
+                    onBlur={() => onFieldBlur("message")}
                 />
               </div>
 

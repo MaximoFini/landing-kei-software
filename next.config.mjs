@@ -28,6 +28,19 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
+  // PostHog reverse proxy: events go to our own domain so ad blockers don't
+  // drop them. Region set by NEXT_PUBLIC_POSTHOG_HOST (us or eu).
+  async rewrites() {
+    const ingest = process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com'
+    const assets = ingest.replace('.i.posthog.com', '-assets.i.posthog.com')
+    return [
+      { source: '/ingest/static/:path*', destination: `${assets}/static/:path*` },
+      { source: '/ingest/array/:path*', destination: `${assets}/array/:path*` },
+      { source: '/ingest/:path*', destination: `${ingest}/:path*` },
+    ]
+  },
+  // Required by the PostHog proxy: its API paths end in a trailing slash.
+  skipTrailingSlashRedirect: true,
   // Compression
   compress: true,
   // Power by header removal for security

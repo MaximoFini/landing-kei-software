@@ -19,6 +19,7 @@ export function WhatsApp() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Escribinos por WhatsApp"
+      data-section="whatsapp-flotante"
       tabIndex={shown ? 0 : -1}
       className="k-roll-host fixed bottom-4 right-4 z-50 flex h-12 items-center gap-2.5 rounded-full bg-[#020714] pl-3 pr-4 text-[#f9fafc] shadow-[0_18px_40px_-16px_rgba(2,7,20,0.6)] ring-1 ring-white/10 transition-[opacity,transform] duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] active:scale-[0.97] sm:bottom-6 sm:right-6"
       style={{
