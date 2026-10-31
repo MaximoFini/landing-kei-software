@@ -107,7 +107,7 @@ export function Reel() {
   }, [reduce, reel.length])
 
   return (
-    <div className="k-wrap">
+    <div className="k-wrap" data-section="reel">
       <div ref={ref} className="k-marks">
         <a
           href="#proyectos"

@@ -7,6 +7,7 @@ import { PageTransition } from "@/components/page-transition";
 import { TitleAttention } from "@/components/title-attention";
 import { ThemeProvider } from "@/components/theme-provider";
 import { LazyMotionProvider } from "@/components/lazy-motion-provider";
+import { AnalyticsTracker } from "@/components/analytics-tracker";
 import "./globals.css";
 import "./kei.css";
 
@@ -190,6 +191,7 @@ export default function RootLayout({
         >
           <LazyMotionProvider>
             <TitleAttention />
+            <AnalyticsTracker />
             <PageTransition>{children}</PageTransition>
           </LazyMotionProvider>
         </ThemeProvider>
