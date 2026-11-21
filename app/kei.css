@@ -35,17 +35,6 @@
   --k-card: #16205e;
 }
 
-@property --k-count {
-  syntax: "<integer>";
-  initial-value: 0;
-  inherits: false;
-}
-
-@counter-style k-pad3 {
-  system: extends decimal;
-  pad: 3 "0";
-}
-
 @layer components {
 /* ---------- Base ---------------------------------------------------------- */
 
@@ -275,96 +264,82 @@
   transform: none;
 }
 
-/* ---------- Intro loader (Lusion) ------------------------------------------- */
+/* ---------- Intro: the headline types itself, then the rest fades in ---------
+   CSS only, opacity/transform only. 34 slots (characters + isotipo).
+   --intro is the moment the typing ends; navbar, subline and CTAs key off it.
+   Repeat visits in the same session run the same sequence, just fast.        */
 
+.kei {
+  --t-start: 250ms;
+  --t-step: 42ms;
+  --intro: calc(var(--t-start) + 34 * var(--t-step) + 120ms);
+}
+.kei-seen .kei {
+  --t-start: 0ms;
+  --t-step: 12ms;
+}
 
-.k-loader {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  background: #020714;
-  color: #f9fafc;
-  pointer-events: none;
-  animation: k-loader-out 700ms var(--k-ease-in-out) 1150ms forwards;
+.kei-js .k-ch {
+  position: relative;
+  display: inline-block;
+  animation: k-type 1ms linear both;
+  animation-delay: calc(var(--t-start) + var(--c, 0) * var(--t-step));
 }
-.k-loader__bar {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 7.5rem;
-  height: 0.875rem;
-  translate: -50% -50%;
-  background: rgba(249, 250, 252, 0.18);
-  border-radius: 2px;
-  overflow: hidden;
+@keyframes k-type {
+  from {
+    opacity: 0;
+  }
 }
-.k-loader__bar::after {
+/* Caret: rides on the character being typed, one step at a time. */
+.kei-js .k-ch::after {
   content: "";
   position: absolute;
-  inset: 0;
-  background: #f9fafc;
-  transform-origin: left;
-  animation: k-loader-bar 1100ms var(--k-ease-in-out) forwards;
+  top: 0.14em;
+  bottom: 0.06em;
+  right: -0.045em;
+  width: 0.05em;
+  border-radius: 1px;
+  background: var(--k-blue);
+  opacity: 0;
+  animation: k-caret var(--t-step) linear both;
+  animation-delay: calc(var(--t-start) + var(--c, 0) * var(--t-step));
 }
-.k-loader__count {
-  position: absolute;
-  left: var(--k-gutter);
-  bottom: 0.5rem;
-  font-family: var(--font-glacial), sans-serif;
-  font-size: clamp(4rem, 12vw, 9rem);
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-  counter-reset: k var(--k-count);
-  animation: k-count 1100ms var(--k-ease-in-out) forwards;
+.kei-js .k-ch[data-last]::after {
+  animation: k-caret-end 1000ms ease-out both;
+  animation-delay: calc(var(--t-start) + var(--c, 0) * var(--t-step));
 }
-.k-loader__count::after {
-  content: counter(k, k-pad3);
-}
-@keyframes k-count {
-  to {
-    --k-count: 100;
+@keyframes k-caret {
+  0%,
+  99% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
   }
 }
-@keyframes k-loader-bar {
+@keyframes k-caret-end {
+  0%,
+  55% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.kei-js .k-nav-in {
+  animation: k-nav-in 800ms var(--k-ease-out) both;
+  animation-delay: var(--intro);
+}
+@keyframes k-nav-in {
   from {
-    transform: scaleX(0);
+    opacity: 0;
+    transform: translateY(-14px);
   }
-  to {
-    transform: scaleX(1);
-  }
-}
-@keyframes k-loader-out {
-  to {
-    clip-path: inset(0 0 100% 0);
-    visibility: hidden;
-  }
-}
-.kei-seen .k-loader {
-  display: none;
 }
 
 /* ---------- Hero ------------------------------------------------------------- */
 
-.k-hero {
-  --intro: 1050ms;
-}
-.kei-seen .k-hero {
-  --intro: 80ms;
-}
-
-/* The hero headline is the LCP: it animates on its own with CSS, never
-   waiting for hydration or an observer. */
-.kei-js .k-hero .k-lines > .k-line > span {
-  transform: none;
-  transition: none;
-  animation: k-line-up 1100ms var(--k-ease-out) both;
-  animation-delay: calc(var(--intro) + var(--i, 0) * 110ms);
-}
-@keyframes k-line-up {
-  from {
-    transform: translateY(125%);
-  }
-}
 .kei-js .k-hero__sub,
 .kei-js .k-hero__cta {
   animation: k-rise 900ms var(--k-ease-out) both;
@@ -530,13 +505,12 @@ textarea.k-field {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .k-loader {
-    display: none;
-  }
   .k-marquee {
     animation: none;
   }
-  .kei-js .k-hero .k-lines > .k-line > span,
+  .kei-js .k-ch,
+  .kei-js .k-ch::after,
+  .kei-js .k-nav-in,
   .kei-js .k-hero__sub,
   .kei-js .k-hero__cta,
   .kei-js .k-mark::before,

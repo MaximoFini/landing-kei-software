@@ -68,7 +68,7 @@ export function Nav() {
 
   return (
     <>
-      <header className="pointer-events-none fixed inset-x-0 top-0 z-[60] flex justify-center px-3 pt-3 sm:pt-4">
+      <header className="k-nav-in pointer-events-none fixed inset-x-0 top-0 z-[60] flex justify-center px-3 pt-3 sm:pt-4">
         <div className="pointer-events-auto relative w-full max-w-[46rem]">
           {/* Strip — slides up behind the pill once the page moves */}
           <div
@@ -210,15 +210,5 @@ export function Nav() {
         )}
       </AnimatePresence>
     </>
-  )
-}
-
-/** Intro (Lusion): counter and bar on ink, first visit of the session only. Pure CSS. */
-export function Loader() {
-  return (
-    <div className="k-loader" aria-hidden="true">
-      <div className="k-loader__bar" />
-      <div className="k-loader__count" />
-    </div>
   )
 }

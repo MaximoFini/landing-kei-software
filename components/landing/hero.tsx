@@ -1,13 +1,41 @@
 "use client"
 
+import { Fragment } from "react"
 import Image from "next/image"
-import { Lines, Pill } from "@/components/landing/primitives"
+import { Pill } from "@/components/landing/primitives"
 
 function Chip({ children, i = 0 }: { children: string; i?: number }) {
   return (
     <span className="k-mark" style={{ "--i": i } as React.CSSProperties}>
       {children}
     </span>
+  )
+}
+
+/** Types `text` one character at a time (CSS only). `from` is the first slot index. */
+function Typed({ text, from, last = false }: { text: string; from: number; last?: boolean }) {
+  const words = text.split(" ")
+  let n = from
+  const total = text.replace(/ /g, "").length
+  return (
+    <>
+      {words.map((w, wi) => (
+        <Fragment key={wi}>
+          <span className="inline-block whitespace-nowrap">
+            {[...w].map((ch, ci) => {
+              const idx = n++
+              const isLast = last && idx === from + total - 1
+              return (
+                <span key={ci} className="k-ch" data-last={isLast ? "" : undefined} style={{ "--c": idx } as React.CSSProperties}>
+                  {ch}
+                </span>
+              )
+            })}
+          </span>
+          {wi < words.length - 1 && " "}
+        </Fragment>
+      ))}
+    </>
   )
 }
 
@@ -51,26 +79,27 @@ export function Hero() {
     >
       <Backdrop />
       <div className="k-wrap relative z-10 flex flex-col items-center pb-[clamp(4rem,10vh,8rem)] pt-[clamp(7.5rem,15vh,10rem)] text-center">
-        <Lines
-          as="h1"
-          id="hero-title"
-          className="k-display k-h1"
-          lines={[
-            "Software a medida.",
-            <>
+        <h1 id="hero-title" className="k-display k-h1" aria-label="Software a medida. Resultados reales.">
+          <span className="block" aria-hidden="true">
+            <Typed text="Software a medida." from={0} />
+          </span>
+          <span className="block" aria-hidden="true">
+            <span className="k-ch mx-[0.12em]" style={{ "--c": 16 } as React.CSSProperties}>
               <Image
                 src="/brand/kei-isotipo.png"
                 alt=""
                 width={256}
                 height={313}
                 priority
-                className="mx-[0.12em] inline-block align-[-0.04em]"
+                className="inline-block align-[-0.04em]"
                 style={{ display: "inline-block", height: "0.74em", width: "auto" }}
               />
-              <span className="text-[var(--k-blue)]">Resultados reales.</span>
-            </>,
-          ]}
-        />
+            </span>
+            <span className="text-[var(--k-blue)]">
+              <Typed text="Resultados reales." from={17} last />
+            </span>
+          </span>
+        </h1>
 
         <p className="k-hero__sub mt-9 max-w-[40rem] text-[clamp(1.05rem,1.4vw,1.25rem)] leading-[1.7] text-[var(--k-ink-soft)]">
           Creamos <span className="whitespace-nowrap"><Chip>sistemas</Chip>,</span>{" "}
