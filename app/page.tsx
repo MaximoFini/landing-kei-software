@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { Footer } from "@/components/footer"
 import { Nav } from "@/components/landing/nav"
-import { Hero } from "@/components/landing/hero"
+import { Hero, Splash } from "@/components/landing/hero"
 import { Projects, Reel, Services, Statement } from "@/components/landing/story"
 import { Closing, Contact, Process, Team, Voices } from "@/components/landing/people"
 import { SmoothScroll } from "@/components/landing/smooth-scroll"
@@ -15,6 +15,7 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <main className="kei relative min-h-screen">
+      <Splash />
       <SmoothScroll />
       <Nav />
       <Hero />

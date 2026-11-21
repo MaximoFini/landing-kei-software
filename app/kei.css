@@ -269,14 +269,70 @@
    --intro is the moment the typing ends; navbar, subline and CTAs key off it.
    Repeat visits in the same session run the same sequence, just fast.        */
 
+/* Variant B: a full-screen splash types "KEI Software" (11 slots), the
+   isotipo lands, then the splash lifts away onto the finished hero.
+   Total length matches variant A (~1.8s). Repeat visits skip the splash. */
 .kei {
-  --t-start: 250ms;
-  --t-step: 42ms;
-  --intro: calc(var(--t-start) + 34 * var(--t-step) + 120ms);
+  --t-start: 200ms;
+  --t-step: 70ms;
+  --logo-at: calc(var(--t-start) + 11 * var(--t-step) + 80ms);
+  --splash-out: calc(var(--logo-at) + 620ms);
+  --intro: calc(var(--splash-out) + 200ms);
 }
 .kei-seen .kei {
-  --t-start: 0ms;
-  --t-step: 12ms;
+  --intro: 80ms;
+}
+
+.k-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background: var(--k-ground);
+  color: var(--k-ink);
+  pointer-events: none;
+  animation: k-splash-out 600ms var(--k-ease-in-out) var(--splash-out) both;
+}
+html:not(.kei-js) .k-splash,
+.kei-seen .k-splash {
+  display: none;
+}
+.k-splash__mark {
+  display: flex;
+  align-items: center;
+  gap: 0.28em;
+  font-size: clamp(2.75rem, 9vw, 7.5rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+.k-splash__logo {
+  height: 0.95em;
+  width: auto;
+  animation: k-logo-in 650ms var(--k-ease-out) var(--logo-at) both;
+}
+@keyframes k-logo-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6) rotate(-8deg);
+  }
+}
+@keyframes k-splash-out {
+  0% {
+    opacity: 1;
+    transform: none;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-3%);
+    visibility: hidden;
+  }
+}
+/* The hero headline is already written when the splash lifts. */
+.kei-js .k-hero__title {
+  animation: k-rise 900ms var(--k-ease-out) both;
+  animation-delay: calc(var(--intro) + 60ms);
 }
 
 .kei-js .k-ch {
@@ -508,6 +564,10 @@ textarea.k-field {
   .k-marquee {
     animation: none;
   }
+  .k-splash {
+    display: none;
+  }
+  .kei-js .k-hero__title,
   .kei-js .k-ch,
   .kei-js .k-ch::after,
   .kei-js .k-nav-in,

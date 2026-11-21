@@ -70,6 +70,27 @@ function Backdrop() {
   )
 }
 
+/** Intro splash (variant B): "KEI Software" types itself, the isotipo lands, then it lifts away. */
+export function Splash() {
+  return (
+    <div className="k-splash" aria-hidden="true">
+      <div className="k-splash__mark k-display">
+        <Image
+          src="/brand/kei-isotipo.png"
+          alt=""
+          width={256}
+          height={313}
+          priority
+          className="k-splash__logo"
+        />
+        <span>
+          <Typed text="KEI Software" from={0} last />
+        </span>
+      </div>
+    </div>
+  )
+}
+
 /** The hero is type and two actions, centred with room to breathe. */
 export function Hero() {
   return (
@@ -79,25 +100,19 @@ export function Hero() {
     >
       <Backdrop />
       <div className="k-wrap relative z-10 flex flex-col items-center pb-[clamp(4rem,10vh,8rem)] pt-[clamp(7.5rem,15vh,10rem)] text-center">
-        <h1 id="hero-title" className="k-display k-h1" aria-label="Software a medida. Resultados reales.">
-          <span className="block" aria-hidden="true">
-            <Typed text="Software a medida." from={0} />
-          </span>
-          <span className="block" aria-hidden="true">
-            <span className="k-ch mx-[0.12em]" style={{ "--c": 16 } as React.CSSProperties}>
-              <Image
-                src="/brand/kei-isotipo.png"
-                alt=""
-                width={256}
-                height={313}
-                priority
-                className="inline-block align-[-0.04em]"
-                style={{ display: "inline-block", height: "0.74em", width: "auto" }}
-              />
-            </span>
-            <span className="text-[var(--k-blue)]">
-              <Typed text="Resultados reales." from={17} last />
-            </span>
+        <h1 id="hero-title" className="k-display k-h1 k-hero__title">
+          <span className="block">Software a medida.</span>
+          <span className="block">
+            <Image
+              src="/brand/kei-isotipo.png"
+              alt=""
+              width={256}
+              height={313}
+              priority
+              className="mx-[0.12em] inline-block align-[-0.04em]"
+              style={{ display: "inline-block", height: "0.74em", width: "auto" }}
+            />
+            <span className="text-[var(--k-blue)]">Resultados reales.</span>
           </span>
         </h1>
 
