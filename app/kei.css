@@ -286,12 +286,16 @@
   --intro: 80ms;
 }
 
+/* Sized to the large viewport and centred on the small one, so a phone's
+   toolbar showing or hiding never moves the wordmark. */
 .k-splash {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100lvh;
   z-index: 100;
-  display: grid;
-  place-items: center;
+  display: block;
   background: var(--k-ground);
   color: var(--k-ink);
   pointer-events: none;
@@ -303,6 +307,11 @@ html:not(.kei-js) .k-splash,
   display: none;
 }
 .k-splash__mark {
+  position: absolute;
+  left: 50%;
+  top: 50svh;
+  translate: -50% -50%;
+  width: max-content;
   display: flex;
   align-items: center;
   gap: 0.28em;
@@ -317,14 +326,17 @@ html:not(.kei-js) .k-splash,
   width: auto;
   animation: k-logo-in 550ms var(--k-ease-out) var(--logo-at) both;
 }
-/* Phones: isotipo stacked above the wordmark, centred. */
+/* Phones: isotipo centred above the wordmark. The wordmark alone is the
+   centred box; the logo hangs above it (absolute), so nothing ever shifts. */
 @media (max-width: 639px) {
-  .k-splash__mark {
-    flex-direction: column;
-    gap: 0.32em;
-  }
   .k-splash__logo {
+    position: absolute;
+    bottom: calc(100% + 0.32em);
+    left: 0;
+    right: 0;
+    margin-inline: auto;
     height: 1.25em;
+    width: calc(1.25em * 256 / 313);
   }
 }
 @keyframes k-logo-in {

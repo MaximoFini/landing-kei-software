@@ -45,7 +45,9 @@ const glacial = localFont({
     { path: "./fonts/GlacialIndifference-Bold.woff2", weight: "700", style: "normal" },
   ],
   variable: "--font-glacial",
-  display: "swap",
+  // `block`, not `swap`: display type (intro wordmark, hero) waits the few ms
+  // for the preloaded face instead of drawing a fallback and jumping on swap.
+  display: "block",
 });
 
 export const metadata: Metadata = {
