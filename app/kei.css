@@ -317,6 +317,16 @@ html:not(.kei-js) .k-splash,
   width: auto;
   animation: k-logo-in 550ms var(--k-ease-out) var(--logo-at) both;
 }
+/* Phones: isotipo stacked above the wordmark, centred. */
+@media (max-width: 639px) {
+  .k-splash__mark {
+    flex-direction: column;
+    gap: 0.32em;
+  }
+  .k-splash__logo {
+    height: 1.25em;
+  }
+}
 @keyframes k-logo-in {
   from {
     opacity: 0;
@@ -337,8 +347,10 @@ html:not(.kei-js) .k-splash,
 }
 
 /* The hero headline is already written when the splash lifts. */
+/* Transform only, never opacity: the title is painted from the first frame
+   (under the splash), so it counts as LCP right away. */
 .kei-js .k-hero__title {
-  animation: k-rise 900ms var(--k-ease-out) both;
+  animation: k-title-rise 900ms var(--k-ease-out) both;
   animation-delay: calc(var(--splash-out) + 300ms);
 }
 
@@ -410,6 +422,11 @@ html:not(.kei-js) .k-splash,
 }
 .kei-js .k-hero__cta {
   animation-delay: calc(var(--intro) + 360ms);
+}
+@keyframes k-title-rise {
+  from {
+    transform: translateY(18px);
+  }
 }
 @keyframes k-rise {
   from {

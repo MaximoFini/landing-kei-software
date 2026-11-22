@@ -109,8 +109,8 @@ export function Nav() {
               <Image
                 src="/brand/kei-horizontal-oscuro.png"
                 alt="KEI Software"
-                width={720}
-                height={141}
+                width={113}
+                height={22}
                 priority
                 style={{ height: "1.375rem", width: "auto" }}
               />

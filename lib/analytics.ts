@@ -1,14 +1,47 @@
-import posthog from "posthog-js"
+type PostHog = typeof import("posthog-js").default
+
+/**
+ * PostHog is loaded lazily (see instrumentation-client.ts) so its ~100 KB stay
+ * off the critical path. Until it arrives every helper here is a no-op.
+ */
+let posthog: PostHog | null = null
+const READY_EVENT = "kei:analytics-ready"
+
+/** Called once by instrumentation-client.ts after PostHog has been initialised. */
+export function setAnalytics(instance: PostHog) {
+  posthog = instance
+  window.dispatchEvent(new Event(READY_EVENT))
+}
 
 /** True once PostHog has been initialised (it isn't without a key). */
-export function analyticsReady() {
-  return typeof window !== "undefined" && posthog.__loaded
+export function analyticsReady(): boolean {
+  return typeof window !== "undefined" && !!posthog?.__loaded
+}
+
+/**
+ * Runs `setup` as soon as analytics is ready (now, or when PostHog loads).
+ * Returns a cleanup that undoes whichever happened.
+ */
+export function onAnalyticsReady(setup: () => void | (() => void)): () => void {
+  let cleanup: void | (() => void)
+  if (analyticsReady()) {
+    cleanup = setup()
+    return () => cleanup?.()
+  }
+  const onReady = () => {
+    cleanup = setup()
+  }
+  window.addEventListener(READY_EVENT, onReady, { once: true })
+  return () => {
+    window.removeEventListener(READY_EVENT, onReady)
+    cleanup?.()
+  }
 }
 
 /** Captures an event; a no-op when analytics is off. */
 export function track(event: string, properties?: Record<string, unknown>, beacon = false) {
   if (!analyticsReady()) return
-  posthog.capture(event, properties, beacon ? { transport: "sendBeacon" } : undefined)
+  posthog!.capture(event, properties, beacon ? { transport: "sendBeacon" } : undefined)
 }
 
 /** Elements that count as a "section" of a page for visibility tracking. */
@@ -41,7 +74,7 @@ export function sectionName(section: Element): string {
 export function identifyLead(lead: { name: string; phone: string }) {
   if (!analyticsReady()) return
   const digits = lead.phone.replace(/\D/g, "")
-  posthog.identify(`lead_${digits}`, {
+  posthog!.identify(`lead_${digits}`, {
     name: lead.name.trim(),
     phone: lead.phone.trim(),
     lead_source: "contact_form",

@@ -15,25 +15,27 @@ const geist = Geist({
   subsets: ["latin"],
   variable: "--font-geist",
   display: "swap",
-  preload: true,
+  // Landing uses Montserrat + Glacial; don't spend the critical path on these.
+  preload: false,
 });
 const geistMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-geist-mono",
   display: "swap",
-  preload: true,
+  preload: false,
 });
 const googleSansFlex = Google_Sans_Flex({
   subsets: ["latin"],
   variable: "--font-google-sans-flex",
   display: "swap",
+  preload: false,
 });
 
 // Brand manual typography: Montserrat for body/UI, Glacial Indifference
 // (SIL OFL, self-hosted from app/fonts) for display.
 const montserrat = Montserrat({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  // Variable font: one file covers 300–700 instead of five.
   variable: "--font-montserrat",
   display: "swap",
 });

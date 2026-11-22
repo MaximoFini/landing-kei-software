@@ -2,7 +2,7 @@
 
 import { useEffect } from "react"
 import { usePathname } from "next/navigation"
-import { SECTION_SELECTOR, analyticsReady, linkChannel, sectionName, sectionOf, track, visit } from "@/lib/analytics"
+import { SECTION_SELECTOR, linkChannel, onAnalyticsReady, sectionName, sectionOf, track, visit } from "@/lib/analytics"
 
 /** A section counts as seen once it fills this share of the viewport (or is this share visible itself). */
 const SEEN_RATIO = 0.4
@@ -20,8 +20,7 @@ const IDLE_MS = 30_000
 export function AnalyticsTracker() {
   const pathname = usePathname()
 
-  useEffect(() => {
-    if (!analyticsReady()) return
+  useEffect(() => onAnalyticsReady(() => {
 
     visit.reset()
     const startedAt = performance.now()
@@ -207,7 +206,7 @@ export function AnalyticsTracker() {
       document.removeEventListener("visibilitychange", onVisibility)
       window.removeEventListener("pagehide", onPageHide)
     }
-  }, [pathname])
+  }), [pathname])
 
   return null
 }
