@@ -38,6 +38,8 @@ const montserrat = Montserrat({
   // Variable font: one file covers 300–700 instead of five.
   variable: "--font-montserrat",
   display: "swap",
+  // Body/UI text fades in after the intro; no need to race the first paint.
+  preload: false,
 });
 const glacial = localFont({
   src: [
@@ -45,9 +47,12 @@ const glacial = localFont({
     { path: "./fonts/GlacialIndifference-Bold.woff2", weight: "700", style: "normal" },
   ],
   variable: "--font-glacial",
-  // `block`, not `swap`: display type (intro wordmark, hero) waits the few ms
-  // for the preloaded face instead of drawing a fallback and jumping on swap.
-  display: "block",
+  // The intro wordmark has its own inlined subset (see "KEI Splash" in
+  // kei.css), so this face can swap: the hero title paints at once (LCP)
+  // and any swap happens hidden under the intro. Not preloaded, so nothing
+  // competes with the first paint; the hero requests it on first render.
+  display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -177,10 +182,11 @@ export default function RootLayout({
         <StructuredData />
         {/* Marks the document before first paint: enables reveal animations
             (content stays visible without JS) and skips the intro loader
-            after the first visit of the session. */}
+            after the first visit of the session. `kei-go` lands on the first
+            rendered frame and starts the intro clock (see kei.css). */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){var d=document.documentElement;d.classList.add("kei-js");try{if(sessionStorage.getItem("kei-intro"))d.classList.add("kei-seen");else sessionStorage.setItem("kei-intro","1")}catch(e){}})();`,
+            __html: `(function(){var d=document.documentElement;d.classList.add("kei-js");requestAnimationFrame(function(){d.classList.add("kei-go")});try{if(sessionStorage.getItem("kei-intro"))d.classList.add("kei-seen");else sessionStorage.setItem("kei-intro","1")}catch(e){}})();`,
           }}
         />
       </head>

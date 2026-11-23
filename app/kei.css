@@ -281,6 +281,18 @@
   --splash-out: calc(var(--logo-at) + 650ms);
   --intro: calc(var(--splash-out) + 260ms);
 }
+/* The intro clock starts on the first painted frame, not when the HTML is
+   parsed: on a slow phone the first paint can come ~0.5s after parsing, and
+   the first letters would be "typed" before anyone could see them. */
+.kei-js:not(.kei-go) .kei *,
+.kei-js:not(.kei-go) .kei *::before,
+.kei-js:not(.kei-go) .kei *::after {
+  animation-play-state: paused !important;
+}
+/* The K is simply there on that first frame. */
+.kei-js .k-ch[data-first] {
+  animation: none;
+}
 .kei-seen .kei {
   --splash-out: -120ms;
   --intro: 80ms;
@@ -320,6 +332,14 @@ html:not(.kei-js) .k-splash,
   letter-spacing: -0.02em;
   white-space: nowrap;
   animation: k-mark-out 340ms cubic-bezier(0.55, 0, 1, 0.45) var(--splash-out) both;
+}
+/* Each letter is an inline SVG (see SplashWord): drawn on the first frame,
+   no font involved. The -0.02em matches the display letter-spacing. */
+.k-splash__glyph {
+  display: block;
+  height: 1em;
+  margin-inline-end: -0.02em;
+  fill: currentColor;
 }
 .k-splash__logo {
   height: 0.95em;

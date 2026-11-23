@@ -27,6 +27,9 @@ const nextConfig = {
   },
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
+    // CSS goes inside the HTML instead of a separate render-blocking request:
+    // one round trip less before the intro's first K can paint.
+    inlineCss: true,
   },
   // PostHog reverse proxy: events go to our own domain so ad blockers don't
   // drop them. Region set by NEXT_PUBLIC_POSTHOG_HOST (us or eu).
